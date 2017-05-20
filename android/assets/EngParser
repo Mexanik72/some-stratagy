@@ -1,0 +1,73 @@
+var ma = map["features"];
+var result = [];
+for (var region in ma) {
+  var coordinates = ma[region]["geometry"]["coordinates"];
+  var points= [];
+  recurs(points, coordinates, ma[region]["geometry"]["type"] === "MultiPolygon");
+  result.push({ "name": ma[region]["properties"]["LAD13NM"], "coordinates": points });
+}
+        console.log(JSON.stringify(result));
+
+function recurs(result, value, multi) {
+            var pos = 0;
+            if (multi) {
+                var size = 0;
+                for (var i = 0; i < value.length; i++) {
+                    var val = value[i];
+                    var js = val[0];
+                    if (js.length > size) {
+                        size = js.length;
+                        pos = i;
+                    }
+                }
+            }
+            var val;
+            if (multi) {
+                val = value[pos][0];
+            } else {
+                val = value[0];
+            }
+            for (var v in val) {
+                result.push(parseInt(val[v][0]*10000000));
+                result.push(parseInt(val[v][1]*10000000));
+            }
+        }
+
+
+
+
+        ////////
+
+var ma = map["regions"];
+var result = [];
+for (var region in ma) {
+  var coordinates = ma[region]["coordinates"];
+  var newCoords = [];
+  var minX=500000, maxX=-500000, minY=500000, maxY=-500000;
+  var reg = {};
+        for (var i=0; i<coordinates.length;i++) {
+            var coo = coordinates[i];
+            if (i%2 != 0) {
+                if (minX > coo) {
+                    minX = coo;
+                } else if (maxX < coo) {
+                    maxX = coo
+                }
+            } else {
+                if (minY > coo) {
+                    minY = coo;
+                } else if (maxY < coo) {
+                    maxY = coo
+                }
+            }
+            newCoords.push(coo/100);
+        }
+        reg["name"] =  ma[region]["name"];
+        reg["minX"] = minX;
+        reg["maxX"] = maxX;
+        reg["minY"] = minY;
+        reg["maxY"] = maxY;
+        reg["coordinates"] = newCoords;
+        result.push( reg);
+}
+        document.getElementById("p").innerHTML = JSON.stringify(result);
