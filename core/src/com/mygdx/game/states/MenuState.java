@@ -15,8 +15,8 @@ public class MenuState extends State {
 
     public MenuState(GameStateManager gsm) {
         super(gsm);
-        background = new Texture("menu-background.jpg");
-        playBtn = new Texture("play-btn.png");
+        //background = new Texture(Gdx.files.internal("menu-background.jpg"));
+        //playBtn = new Texture("play-btn.png");
     }
 
     @Override
@@ -34,18 +34,18 @@ public class MenuState extends State {
     @Override
     public void render(SpriteBatch sb) {
         Integer height = Gdx.graphics.getHeight() - 50;
-        sb.begin();
+        /*sb.begin();
         sb.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         sb.draw(playBtn, Gdx.graphics.getWidth() / 2  - (height / 2),
                 Gdx.graphics.getHeight() / 2  - (height / 2),
                 height, height);
         sb.end();
-    }
+    */}
 
     @Override
     public void dispose() {
-        background.dispose();
-        playBtn.dispose();
+//        background.dispose();
+//        playBtn.dispose();
 
     }
 }

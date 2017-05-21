@@ -53,37 +53,36 @@ public class GameContainer {
 
         meshes = new ArrayList<Mesh>();
         Color color = Color.RED;
-
+Json json = new Json();
+        //regions = json.fromJson(ArrayList.class, Region.class, Gdx.files.internal("parsedEng.json"));
             Gdx.app.log("GameContainer", "start");
             JsonValue map = new JsonReader().parse(Gdx.files.internal("parsedEng.json"));
             Gdx.app.log("GameContainer", "downloaded");
-            Json j = new Json();
+        Gdx.app.log("GameContainer", "size: " + regions.size());
             //Regions rs = j.fromJson(Regions.class, Gdx.files.internal("parsedEng.json"));
-            for (int i=0; i < map.size/45; i++) {
-                JsonValue region = map.get(i);
-                JsonValue coordinates = region.get("coordinates");
+            for (int i=0; i <  map.size; i++) {
+                JsonValue coordinates = map.get(i).get("coordinates");
                 FloatArray points = new FloatArray();
                 FloatArray pointsI = new FloatArray();
-                //if (coordinates.size < 4000) {
+                if (coordinates.size < 10000) {
                 for (int c = 0; c < coordinates.size;) {
                     points.add(coordinates.getFloat(c));
                     pointsI.add(coordinates.getFloat(c++));
                     points.add(coordinates.getFloat(c));
                     pointsI.add(coordinates.getFloat(c++));
-                    points.add(color.toFloatBits());
                 }
-                    regions.add(new Region(region.getString("name"), pointsI,
+                    regions.add(new Region(map.get(i).getString("name"), pointsI,
                             new Vector3(0, 0, 0),
                             new Vector3(0, 0, 0)));
-                    ShortArray indices = new EarClippingTriangulator().computeTriangles(pointsI);//new DelaunayTriangulator.computeTriangules(pointsI, false);
-                    Gdx.app.log("Indices: ", indices.size + "");
-                    Mesh mesh = new Mesh( true, points.size, indices.size,
-                            new VertexAttribute( VertexAttributes.Usage.Position, 2, ShaderProgram.POSITION_ATTRIBUTE ),
-                            new VertexAttribute( VertexAttributes.Usage.ColorPacked, 4, ShaderProgram.COLOR_ATTRIBUTE ));
+                    ShortArray indices = new EarClippingTriangulator().computeTriangles(pointsI);
+                    //new DelaunayTriangulator().computeTriangles(pointsI, false);
+                    Gdx.app.log("Indices: ", indices.size +"" );//+ " " + regions.get(i).name);
+                    Mesh mesh = new Mesh( true, coordinates.size, indices.size,
+                            new VertexAttribute( VertexAttributes.Usage.Position, 2, ShaderProgram.POSITION_ATTRIBUTE ));
                     mesh.setVertices(points.toArray());
                     mesh.setIndices(indices.toArray());
                     meshes.add(mesh);
-                //}
+                }
             }
 
             /*FloatArray points = new FloatArray();
@@ -101,7 +100,7 @@ public class GameContainer {
                     new VertexAttribute( VertexAttributes.Usage.ColorPacked, 4, ShaderProgram.COLOR_ATTRIBUTE ));
             mesh.setVertices(points.toArray());
             meshes.add(mesh);*/
-            Gdx.app.log("GameContainer", "parsed ");
+            Gdx.app.log("GameContainer", "parsed " + meshes.size());
     }
 
     private void geoParser() {

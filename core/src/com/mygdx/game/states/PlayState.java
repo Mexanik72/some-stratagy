@@ -1,6 +1,7 @@
 package com.mygdx.game.states;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -18,8 +19,11 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.utils.FloatArray;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mygdx.game.GameContainer;
 import com.mygdx.game.Listener;
 import com.mygdx.game.Region;
@@ -66,6 +70,7 @@ public class PlayState extends State {
         tableHeight = GameContainer.getInstance().view.height;
 
         shaderProgram = new ShaderProgram(Gdx.files.internal("sh.vert"), Gdx.files.internal("sh.frag"));
+        if (!shaderProgram.isCompiled()) throw new GdxRuntimeException("Couldn't compile shader: " + shaderProgram.getLog());
 
         Listener listener = new Listener(camera);
         InputMultiplexer inputMultiplexer = new InputMultiplexer();
@@ -79,11 +84,22 @@ public class PlayState extends State {
         if (Gdx.input.isCatchBackKey()) {
             gsm.pop();
         }
+
     }
 
     @Override
     public void update(float dt) {
-
+        if (Gdx.input.isKeyJustPressed(Input.Keys.PLUS) ||
+                (Gdx.input.isKeyJustPressed(Input.Keys.P))) {
+            Gdx.app.log("kk", "plus");
+            camera.zoom += 0.1;
+            camera.update();
+        } else
+        if (Gdx.input.isKeyJustPressed(Input.Keys.MINUS)) {
+            Gdx.app.log("kk", "minus2");
+            camera.zoom -= 0.1;
+            camera.update();
+        }
     }
 
     @Override
@@ -92,16 +108,16 @@ public class PlayState extends State {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         shaderProgram.begin();
-/*        shaderProgram.setUniformf("u_viewportInverse", new Vector2(1f / 1000, 1f / 1000));
+        shaderProgram.setUniformf("u_viewportInverse", new Vector2(1f / 100, 1f / 100));
         shaderProgram.setUniformf("u_offset", 1f);
-        shaderProgram.setUniformf("u_step", Math.min(1f, 1000 / 70f));
-        shaderProgram.setUniformf("u_color", Color.DARK_GRAY);
-*/
+        shaderProgram.setUniformf("u_step", Math.min(1f, 100 / 70f));
+        shaderProgram.setUniformf("u_color", new Vector3(0.19f, 0.19f, 0.19f));
+
         //update the projection matrix so our triangles are rendered in 2D
         shaderProgram.setUniformMatrix("u_projTrans", camera.combined);
         ArrayList<Mesh> meshes = GameContainer.getInstance().meshes;
         for (Mesh mesh : meshes) {
-            mesh.render(shaderProgram, GL20.GL_LINES );
+            mesh.render(shaderProgram, GL20.GL_TRIANGLES);
         }
         shaderProgram.end();
         /*polyBatch.setProjectionMatrix(camera.combined);
@@ -112,13 +128,13 @@ public class PlayState extends State {
         polyBatch.end();*/
 
         shapeRenderer.setProjectionMatrix(camera.combined);
-        Gdx.gl.glLineWidth(5f);
+        Gdx.gl.glLineWidth(1.5f);
         shapeRenderer.setColor(Color.GRAY);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         for (Region region : GameContainer.getInstance().regions) {
             //if (camera.frustum.pointInFrustum(region.min) ||
               //      camera.frustum.pointInFrustum(region.max)) {
-                shapeRenderer.polyline(region.coordinates.toArray());
+               // shapeRenderer.polyline(region.coordinates.toArray());
             //}
         }
 

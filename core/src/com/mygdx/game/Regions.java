@@ -11,5 +11,4 @@ import java.util.ArrayList;
 
 public class Regions {
     ArrayList<Region> regions;
-    ArrayList<Mesh> meshes;
 }

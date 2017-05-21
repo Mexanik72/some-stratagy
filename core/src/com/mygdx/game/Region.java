@@ -11,18 +11,24 @@ import java.util.ArrayList;
  */
 
 public class Region {
-    String name;
-    public FloatArray coordinates;
-    public float[] cordinatesArray;
-    public Vector3 min;
-    public Vector3 max;
+    public String name;
+    public float[] coordinates;
+    public float minX;
+    public float maxX;
+    public float minY;
+    public float maxY;
+
+    public Region(){
+
+    }
 
     public Region(String name, FloatArray points, Vector3 min, Vector3 max) {
         this.name = name;
-        this.coordinates = points;
-        this.min = min;
-        this.max = max;
-        this.cordinatesArray = coordinates.toArray();
+        this.coordinates = points.toArray();
+        this.minX = min.x;
+        this.maxX = max.x;
+        this.minY = min.y;
+        this.maxY = max.y;
     }
 
 }

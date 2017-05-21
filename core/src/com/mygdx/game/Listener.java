@@ -67,7 +67,7 @@ public class Listener implements GestureListener {
 
     @Override
     public boolean longPress(float x, float y) {
-        FloatArray poi = GameContainer.getInstance().regions.get(0).coordinates;
+        FloatArray poi = new FloatArray(GameContainer.getInstance().regions.get(0).coordinates);
         camera.position.set(poi.get(0),poi.get(1),0);
         Gdx.app.log("ok", poi.get(0) + ", " +poi.get(1));
         camera.update();
