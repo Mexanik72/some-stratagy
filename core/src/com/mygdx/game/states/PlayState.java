@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g2d.PolygonSprite;
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g3d.particles.influencers.ColorInfluencer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.input.GestureDetector;
@@ -89,16 +90,18 @@ public class PlayState extends State {
 
     @Override
     public void update(float dt) {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.PLUS) ||
-                (Gdx.input.isKeyJustPressed(Input.Keys.P))) {
-            Gdx.app.log("kk", "plus");
+        if (Gdx.input.isKeyPressed(Input.Keys.PLUS) ||
+                (Gdx.input.isKeyPressed(Input.Keys.P))) {
+            if (camera.zoom > 0.2) {
+                camera.zoom -= 0.1;
+                camera.update();
+                Gdx.app.log("kk", "plus" + camera.zoom);
+            }
+        } else
+        if (Gdx.input.isKeyPressed(Input.Keys.MINUS)) {
             camera.zoom += 0.1;
             camera.update();
-        } else
-        if (Gdx.input.isKeyJustPressed(Input.Keys.MINUS)) {
-            Gdx.app.log("kk", "minus2");
-            camera.zoom -= 0.1;
-            camera.update();
+            Gdx.app.log("kk", "minus2" + camera.zoom);
         }
     }
 
@@ -108,15 +111,25 @@ public class PlayState extends State {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         shaderProgram.begin();
-        shaderProgram.setUniformf("u_viewportInverse", new Vector2(1f / 100, 1f / 100));
+        /*shaderProgram.setUniformf("u_viewportInverse", new Vector2(1f / 100, 1f / 100));
         shaderProgram.setUniformf("u_offset", 1f);
-        shaderProgram.setUniformf("u_step", Math.min(1f, 100 / 70f));
-        shaderProgram.setUniformf("u_color", new Vector3(0.19f, 0.19f, 0.19f));
+        shaderProgram.setUniformf("u_step", Math.min(1f, 100 / 70f));*/
+        shaderProgram.setUniformf("u_color", new Vector3(0.19f,0.19f,0.19f));
 
         //update the projection matrix so our triangles are rendered in 2D
         shaderProgram.setUniformMatrix("u_projTrans", camera.combined);
         ArrayList<Mesh> meshes = GameContainer.getInstance().meshes;
-        for (Mesh mesh : meshes) {
+        Integer selected = GameContainer.getInstance().selected;
+        for (Integer i=0; i < meshes.size(); i++) {
+            Mesh mesh = meshes.get(i);
+            if (selected != null) {
+                if (selected.equals(i)) {
+                    Gdx.app.log("playState", "selected" + i);
+                    shaderProgram.setUniformf("u_color", new Vector3(1f, 0.19f, 0.19f));
+                } else {
+                    shaderProgram.setUniformf("u_color", new Vector3(0.19f, 0.19f, 0.19f));
+                }
+            }
             mesh.render(shaderProgram, GL20.GL_TRIANGLES);
         }
         shaderProgram.end();
@@ -128,15 +141,16 @@ public class PlayState extends State {
         polyBatch.end();*/
 
         shapeRenderer.setProjectionMatrix(camera.combined);
-        Gdx.gl.glLineWidth(1.5f);
+        Gdx.gl.glLineWidth(1f);
         shapeRenderer.setColor(Color.GRAY);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        for (Region region : GameContainer.getInstance().regions) {
+        /*for (Region region : GameContainer.getInstance().regions) {
             //if (camera.frustum.pointInFrustum(region.min) ||
               //      camera.frustum.pointInFrustum(region.max)) {
-               // shapeRenderer.polyline(region.coordinates.toArray());
+            if (region.coordinates.length < 5000)
+                shapeRenderer.polyline(region.coordinates);
             //}
-        }
+        }*/
 
         shapeRenderer.end();
     }

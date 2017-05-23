@@ -4,11 +4,13 @@ precision mediump float;
 
 //input from vertex shader
 varying vec4 vColor;
+uniform vec3 u_color;
 
 void main() {
-	gl_FragColor = vColor;
+   gl_FragColor = vec4(u_color,0.5);
 }
 /*#ifdef GL_ES
+ #define LOWP lowp
 precision mediump float;
 precision mediump int;
 #endif
@@ -54,5 +56,5 @@ void main() {
       alpha = 0.0;
    }
 
-   gl_FragColor = v_color;
+   gl_FragColor = vec4(u_color,alpha);
 }*/

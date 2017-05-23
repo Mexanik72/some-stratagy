@@ -21,7 +21,10 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.ShortArray;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Created by Andrew on 15.04.2017.
@@ -32,6 +35,7 @@ public class GameContainer {
 
     public ArrayList<Region> regions;
     public ArrayList<Mesh> meshes;
+    public Integer selected;
 
     public static GameContainer getInstance() {
         GameContainer localInstance = instance;
@@ -51,106 +55,49 @@ public class GameContainer {
     private GameContainer() {
         regions = new ArrayList<Region>();
 
+        Gdx.app.log("GameContainer", "start");
         meshes = new ArrayList<Mesh>();
         Color color = Color.RED;
 Json json = new Json();
-        //regions = json.fromJson(ArrayList.class, Region.class, Gdx.files.internal("parsedEng.json"));
-            Gdx.app.log("GameContainer", "start");
-            JsonValue map = new JsonReader().parse(Gdx.files.internal("parsedEng.json"));
+        regions = json.fromJson(ArrayList.class, Region.class, Gdx.files.internal("englandWithIndices.json"));
+            //JsonValue map = new JsonReader().parse(Gdx.files.internal("parsedEng.json"));
             Gdx.app.log("GameContainer", "downloaded");
         Gdx.app.log("GameContainer", "size: " + regions.size());
             //Regions rs = j.fromJson(Regions.class, Gdx.files.internal("parsedEng.json"));
-            for (int i=0; i <  map.size; i++) {
-                JsonValue coordinates = map.get(i).get("coordinates");
+            for (int i=0; i <  regions.size(); i++) {
+                /*JsonValue coordinates = regions.get(i).get("coordinates");
                 FloatArray points = new FloatArray();
                 FloatArray pointsI = new FloatArray();
                 if (coordinates.size < 10000) {
-                for (int c = 0; c < coordinates.size;) {
-                    points.add(coordinates.getFloat(c));
-                    pointsI.add(coordinates.getFloat(c++));
-                    points.add(coordinates.getFloat(c));
-                    pointsI.add(coordinates.getFloat(c++));
-                }
-                    regions.add(new Region(map.get(i).getString("name"), pointsI,
-                            new Vector3(0, 0, 0),
-                            new Vector3(0, 0, 0)));
+                    for (int c = 0; c < coordinates.size;) {
+                        points.add(coordinates.getFloat(c));
+                        pointsI.add(coordinates.getFloat(c++));
+                        points.add(coordinates.getFloat(c));
+                        pointsI.add(coordinates.getFloat(c++));
+                    }
+
                     ShortArray indices = new EarClippingTriangulator().computeTriangles(pointsI);
                     //new DelaunayTriangulator().computeTriangles(pointsI, false);
-                    Gdx.app.log("Indices: ", indices.size +"" );//+ " " + regions.get(i).name);
-                    Mesh mesh = new Mesh( true, coordinates.size, indices.size,
+
+                    regions.add(new Region(map.get(i).getString("name"), pointsI, indices,
+                            new Vector3(0, 0, 0),
+                            new Vector3(0, 0, 0)));
+                    Gdx.app.log("Indices: ",coordinates.size + " " + indices.size +"" );//+ " " + regions.get(i).name);
+                    */Mesh mesh = new Mesh( true, regions.get(i).coordinates.length, regions.get(i).indices.length,
                             new VertexAttribute( VertexAttributes.Usage.Position, 2, ShaderProgram.POSITION_ATTRIBUTE ));
-                    mesh.setVertices(points.toArray());
-                    mesh.setIndices(indices.toArray());
+                    mesh.setVertices(regions.get(i).coordinates);
+                    mesh.setIndices(regions.get(i).indices);
                     meshes.add(mesh);
-                }
-            }
 
-            /*FloatArray points = new FloatArray();
-            points.add(50);
-            points.add(50);
-            points.add(color.toFloatBits());
-            points.add(200);
-            points.add(80);
-            points.add(color.toFloatBits());
-            points.add(60);
-            points.add(300);
-            points.add(color.toFloatBits());
-            Mesh mesh = new Mesh( true, 4000, 0,
-                    new VertexAttribute( VertexAttributes.Usage.Position, 2, ShaderProgram.POSITION_ATTRIBUTE ),
-                    new VertexAttribute( VertexAttributes.Usage.ColorPacked, 4, ShaderProgram.COLOR_ATTRIBUTE ));
-            mesh.setVertices(points.toArray());
-            meshes.add(mesh);*/
+                //}
+            }
+            /*try{
+                PrintWriter writer = new PrintWriter("englandWithIndices.json", "UTF-8");//without cornwall
+                writer.write(json.prettyPrint(regions));
+                writer.close();
+            } catch (IOException e) {
+                // do something
+            }*/
             Gdx.app.log("GameContainer", "parsed " + meshes.size());
-    }
-
-    private void geoParser() {
-        try {
-            JsonValue map = new JsonReader().parse(Gdx.files.internal("England.json")).get("features");
-            ArrayList<Region> regions = new ArrayList<Region>();
-            for (JsonValue region : map) {
-                JsonValue coordinates = region.get("geometry").get("coordinates");
-                FloatArray points = new FloatArray();
-                Gdx.app.log("type", region.get("geometry").getString("type"));
-                recurs(points, coordinates, region.get("geometry").getString("type").equals("MultiPolygon"));
-                //regions.add(new Region(region.get("properties").getString("LAD13NM"), points));
-            }
-            Json json = new Json();
-            Gdx.app.log("Result", json.prettyPrint(regions));
-
-            Gdx.app.log("Result", Gdx.files.getLocalStoragePath());
-            FileHandle file = Gdx.files.local("out.json");
-            file.writeString(json.prettyPrint(regions), false);
-        } catch (Exception e) {
-            Gdx.app.error("geoParser", e.getMessage());
-            e.printStackTrace();
-        }
-    }
-    private void recurs(FloatArray result, JsonValue value, boolean multi) {
-        if (value.isArray()) {
-            int pos = 0;
-            Gdx.app.log("ds", multi + "");
-            if (multi) {
-                int size = 0;
-                for (int i = 0; i < value.size; i++) {
-                    JsonValue val = value.get(i);
-                    JsonValue js = val.get(0);
-                    Gdx.app.log("size", js.size + "");
-                    if (js.size > size) {
-                        size = js.size;
-                        pos = i;
-                    }
-                }
-            }
-            JsonValue val;
-            if (multi) {
-                val = value.get(pos).get(0);
-            } else {
-                val = value.get(0);
-            }
-            for (JsonValue v : val) {
-                result.add((int)(v.getFloat(0)*1000000));
-                result.add((int)(v.getFloat(1)*1000000));
-            }
-        }
     }
 }

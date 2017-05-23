@@ -1,12 +1,15 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.input.GestureDetector.GestureListener;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.FloatArray;
+
+import java.util.ArrayList;
 
 /**
  * Created by Andrew on 10.04.2017.
@@ -45,6 +48,20 @@ public class Listener implements GestureListener {
     public boolean tap(float x, float y, int count, int button) {
         Vector3 touchPos = new Vector3();
         touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+
+        camera.unproject(touchPos);
+        Gdx.app.log("tan", "X: " + touchPos.x + ", Y: " + touchPos.y);
+        Gdx.app.log("tan", "selected: " + GameContainer.getInstance().selected);
+
+        ArrayList<Mesh> meshes = GameContainer.getInstance().meshes;
+        GameContainer.getInstance().selected = null;
+        for (int i=0; i < meshes.size(); i++) {
+            Mesh mesh = meshes.get(i);
+            if (mesh.calculateBoundingBox().contains(touchPos)) {
+                GameContainer.getInstance().selected = i;
+                break;
+            }
+        }
 //        if (GameContainer.getInstance().getSelectedCard() != null) {
 //            Gdx.app.log("before", touchPos.x + " " + touchPos.y);
 //
@@ -60,8 +77,6 @@ public class Listener implements GestureListener {
 //            GameContainer.getInstance().selectCard(touchPos);
 //        }
 
-            camera.unproject(touchPos);
-        Gdx.app.log("tan", "X: " + touchPos.x + ", Y: " + touchPos.y);
         return false;
     }
 
