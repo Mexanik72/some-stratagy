@@ -53,11 +53,11 @@ public class Listener implements GestureListener {
         Gdx.app.log("tan", "X: " + touchPos.x + ", Y: " + touchPos.y);
         Gdx.app.log("tan", "selected: " + GameContainer.getInstance().selected);
 
-        ArrayList<Mesh> meshes = GameContainer.getInstance().meshes;
+        ArrayList<Region> regions = GameContainer.getInstance().regions;
         GameContainer.getInstance().selected = null;
-        for (int i=0; i < meshes.size(); i++) {
-            Mesh mesh = meshes.get(i);
-            if (mesh.calculateBoundingBox().contains(touchPos)) {
+        for (int i=0; i < regions.size(); i++) {
+            Region region = regions.get(i);
+            if (region.bounds.contains(touchPos)) {
                 GameContainer.getInstance().selected = i;
                 break;
             }

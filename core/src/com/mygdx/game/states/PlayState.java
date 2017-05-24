@@ -3,6 +3,10 @@ package com.mygdx.game.states;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.assets.AssetDescriptor;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
+import com.badlogic.gdx.assets.loaders.resolvers.LocalFileHandleResolver;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Mesh;
@@ -26,9 +30,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.mygdx.game.GameContainer;
+import com.mygdx.game.GeoLoader;
 import com.mygdx.game.Listener;
 import com.mygdx.game.Region;
 import com.badlogic.gdx.math.EarClippingTriangulator;
+import com.mygdx.game.Regions;
 
 import java.util.ArrayList;
 
@@ -42,6 +48,7 @@ public class PlayState extends State {
     Texture textureSolid;
     ShapeRenderer shapeRenderer;
     ShaderProgram shaderProgram;
+    public static AssetManager assets = new AssetManager();
 
     float tableHeight;
     float tableWidth;
@@ -58,6 +65,11 @@ public class PlayState extends State {
         pix.fill();
         textureSolid = new Texture(pix);
 
+        //assets.setLoader(Regions.class, new GeoLoader(new InternalFileHandleResolver()));
+        /*assets.load("englandWithIndices.json", Regions.class);
+        assets.finishLoading();
+Regions re = assets.get("englandWithIndices.json", Regions.class);
+        Gdx.app.log("RR", re.regions.size()+"");*/
        /* for (Region region : GameContainer.getInstance().regions) {
             PolygonRegion polyReg = new PolygonRegion(new TextureRegion(textureSolid),
                     region.cordinatesArray,
@@ -118,10 +130,10 @@ public class PlayState extends State {
 
         //update the projection matrix so our triangles are rendered in 2D
         shaderProgram.setUniformMatrix("u_projTrans", camera.combined);
-        ArrayList<Mesh> meshes = GameContainer.getInstance().meshes;
+        ArrayList<Region> regions = GameContainer.getInstance().regions;
         Integer selected = GameContainer.getInstance().selected;
-        for (Integer i=0; i < meshes.size(); i++) {
-            Mesh mesh = meshes.get(i);
+        for (Integer i=0; i < regions.size(); i++) {
+            Region region = regions.get(i);
             if (selected != null) {
                 if (selected.equals(i)) {
                     Gdx.app.log("playState", "selected" + i);
@@ -130,7 +142,7 @@ public class PlayState extends State {
                     shaderProgram.setUniformf("u_color", new Vector3(0.19f, 0.19f, 0.19f));
                 }
             }
-            mesh.render(shaderProgram, GL20.GL_TRIANGLES);
+            region.mesh.render(shaderProgram, GL20.GL_TRIANGLES);
         }
         shaderProgram.end();
         /*polyBatch.setProjectionMatrix(camera.combined);

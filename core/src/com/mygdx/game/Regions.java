@@ -10,5 +10,5 @@ import java.util.ArrayList;
  */
 
 public class Regions {
-    ArrayList<Region> regions;
+    public ArrayList<Region> regions;
 }

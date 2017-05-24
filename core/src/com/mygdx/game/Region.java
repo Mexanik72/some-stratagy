@@ -1,7 +1,9 @@
 package com.mygdx.game;
 
+import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.ShortArray;
 
@@ -19,19 +21,25 @@ public class Region {
     public float maxX;
     public float minY;
     public float maxY;
+    public Mesh mesh;
+    BoundingBox bounds;
 
     public Region(){
 
     }
 
-    public Region(String name, FloatArray points, ShortArray indices, Vector3 min, Vector3 max) {
+    public Region(String name, FloatArray points, ShortArray indices, Mesh mesh) {
         this.name = name;
         this.coordinates = points.toArray();
         this.indices = indices.toArray();
-        this.minX = min.x;
-        this.maxX = max.x;
-        this.minY = min.y;
-        this.maxY = max.y;
+        this.mesh = mesh;
     }
 
+    public void setMesh(Mesh mesh, BoundingBox bounds) {
+        this.mesh = mesh;
+        this.bounds = bounds;
+    }
+    public BoundingBox getBounds() {
+        return bounds;
+    }
 }
